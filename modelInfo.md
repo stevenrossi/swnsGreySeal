@@ -1,12 +1,10 @@
-# Southwest Nova Scotia Grey Seal population model
-
-## Background
+# Background
 
 Grey seals [(*Halichoerus grypus*)](https://en.wikipedia.org/wiki/Grey_seal) in the northwest Atlantic Ocean comprise a single population with major breeding colonies at Sable Island and in the Gulf of St. Lawrence, and smaller colonies occurring along the coasts of Nova Scotia and the northeastern United States. Inferring abundance at the smaller grey seal colonies is difficult as observations at these colonies have greater uncertainty, comprise relatively short time series and dynamics are presumed to be driven by emigration from larger adjacent colonies. Recent assessment models for grey seals in Canadian waters have aggregated Sable Island and coastal Nova Scotia seals into a single management unit, thereby avoiding direct inferences about dynamics at the smaller colonies.
 
 Atlantic cod [(*Gadus morhua*)](https://en.wikipedia.org/wiki/Atlantic_cod) stocks in the Northwest Atlantic declined to low abundance in the late 1980s / early 1990s due to overfishing and have largely failed to recover despite large scale reductions in fishing effort. Grey seal predation on adult cod appears to be the primary impedement to cod recovery in the southern Gulf of St. Lawrence. Links between grey seal predation and elevated cod mortality have been hypothesized in other ecosystems, such as the Scotian Shelf and Georges Bank. Evaluating these hypotheses requires finer-scale grey seal abundance estimates than are currently available from existing assessment models. To this end, we developed a Bayesian population model to infer grey seal abundance at colonies along southwest Nova Scotia (SWNS).
 
-## Data
+# Data
 
 Pop counts (*n*) at SWNS colonies (Mud Is., Round Is., Noddy Is., and Flat Is.,) were available for 2007 (*n = 204*), 2010 (*n=417*), 2016 (*n=1849*), and 2021 (*n=2246*). The first two observations were visual counts in late January of mostly weaned pups, with many pups thought to have dispersed given the few mothers left at the colonies.
 
@@ -22,7 +20,7 @@ Coefficients of variation (CVs) from statistical analyses were only available fo
 | 2016  &emsp;&emsp;&emsp;  | 1849 &emsp;&emsp;&emsp;	| 2105  &emsp;&emsp;&emsp;   	| 0.07 	|
 | 2021  &emsp;&emsp;&emsp;  | 2246 &emsp;&emsp;&emsp;	| 2420  &emsp;&emsp;&emsp;   	| 0.08 	|
 
-## Population model
+# Population model
 
 Annual pup production at SWNS colonies is represented by
 a logistic population model, i.e.,
@@ -40,9 +38,9 @@ Given the sparsity of the data, we were unable to estimate all three model param
 
 We note that this model assumes that the population is closed to immigration or emigration and that `r` represents an intrinsic population growth rate. These assumptions are presumably violated, given that the growth of SWNS is thought to be driven by emigration from Sable Island. However, estimating a emigration rate from Sable Island to SWNS in not feasible due to the lack of data, so the logistic model at least offers a tractable first step for estimating abundance.
 
-## Objective function
+# Objective function
 
-### Likelihood
+## Likelihood
 
 Observed pup counts in year `t` (`Iobs[t]`) were assumed to arise from log-normal distributions:
 
@@ -50,7 +48,7 @@ Observed pup counts in year `t` (`Iobs[t]`) were assumed to arise from log-norma
 
 where variance `Isd^2` was set to `(CV[t]^2 + 1)`.
 
-### Priors
+## Priors
 
 Log-normal priors are specified for `r` and `K`:
 
@@ -62,7 +60,7 @@ Log-normal priors are specified for `r` and `K`:
 
 Priors for `K` are more difficult to determine. Ideally we want to use a wide prior that has minimal influence. We chose default values of `kMu` = 5 and `kSD` = 10.
 
-## Implementation
+# Implementation
 
 The statistical model described above was implemented using the Template Model Builder (`tmb`) package within R. Bayes posterior distributions for parameters and predictive pup count distributions were generated using [Hamiltonian Monte Carlo (HMC)](https://arxiv.org/abs/1701.02434), which approximates the posterior density by simulating the evolution of a Hamiltonian system. A key feature of HMC is its ability to move between distant regions of the target density in a single transition using the gradient of the density, thus avoiding the inefficient random walk mechanics of more traditional MCMC algorithms such as Metropolis-Hastings. The algorithm can be [visualized](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12681) as a frictionless disk gliding over a surface, where the position of the disk represents a set of parameter values and the height or potential energy of the disk is analogous to the negative-log-posterior density. The sum of the kinetic and potential energy of the disk, known as the Hamiltonian (H), should be constant as the surface is frictionless, however, paths must be approximated via numerical techniques, causing H to vary. Excessive posterior curvature or transition size can cause the simulated H to diverge from the true H. The accuracy of the HMC algorithm is not guaranteed in the presence of these so-called “divergent transitions”, so ensuring proper posterior geometry and tuning the transition size are important steps in generating reliable inference.
 
@@ -76,18 +74,18 @@ Convergence is monitored using (i) the potential scale reduction factor on rank-
 The user specifies the number of chains (`nChain`), number of iterations (`nIter`), and two NUTS settings: `adapt_delta` and `max_treedepth`. The first half of each chain is discarded as a warm-up, so the final number of posterior samples is `nIter*nChain/2`.
 
 
-## Scaling to total abundance
+# Scaling to total abundance
 
 Total SWNS grey abundance is calculated by scaling estimated pup production according to the user-specified pup-to-adult ratio, which was calculated as 0.26 for the Sable Island population.
 
 
-## Projection
+# Projection
 
 While the model is only fitted to data up to 2021, the model can be projected for an arbitrary number of years by adjusting the `Final year` control. The vertical line on the time-series plots indicates the beginning of the projection period.
 
 
 
-## References
+# References
 
 den Heyer, C.E., Lang, S.L.C., Bowen, W.D., and Hammill, M.O. 2017. Pup Production at Scotian Shelf Grey Seal (Halichoerus grypus) Colonies in 2016. DFO Can. Sci. Advis. Sec. Res. Doc. 2017/056. v + 34 p.
 

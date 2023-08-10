@@ -2,20 +2,15 @@ library(shiny)
 library(TMB)
 library(tmbstan)
 
-loadModel <- function( name )
-{
-  if(name %in% names(getLoadedDLLs()))
-    dyn.unload(dynlib(name))          # unlink the C++ code if already linked
-  compile(paste0(name,".cpp"),flags = "")
-  dyn.load(dynlib(name))          # Dynamically link the C++ code
-}
+compile("swnsSeal.cpp")
+dyn.load(dynlib("swnsSeal"))
 
 function(input, output, session) {
 
 
   fitMod <- reactive({
 
-    loadModel("swnsSeal")
+
 
     years <- seq(1980,input$finalYear,by=1)
     raw <- c(0.204,0.417,1.849,2.246)
